@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <style>
@@ -10,42 +10,45 @@
     background: radial-gradient(120% 85% at 50% 0%, #232330 0%, #15151c 68%);
     font-family: -apple-system, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
     color: #fff; overflow: hidden;
-    display: flex; flex-direction: column; align-items: center;
   }
-  /* title block — kept in the TOP third (platform UI covers the bottom) */
-  .head { padding-top: 58px; text-align: center; }
+  /* title block — kept in the TOP third */
+  .head { padding-top: 64px; text-align: center; position: relative; z-index: 3; }
   .title {
-    font-size: 118px; font-weight: 900; letter-spacing: 2px; line-height: .96;
-    text-transform: uppercase; text-shadow: 0 6px 30px rgba(0,0,0,.5);
+    font-size: 116px; font-weight: 900; letter-spacing: 2px; line-height: .96;
+    text-transform: uppercase; text-shadow: 0 6px 30px rgba(0,0,0,.55);
   }
   .en {
-    margin-top: 22px; font-size: 34px; font-weight: 800; letter-spacing: 6px;
+    margin-top: 22px; font-size: 33px; font-weight: 800; letter-spacing: 6px;
     color: #5ad1c7; text-transform: uppercase;
   }
   .tag {
-    margin-top: 14px; font-size: 25px; font-weight: 600; letter-spacing: 2px;
+    margin-top: 13px; font-size: 24px; font-weight: 600; letter-spacing: 2px;
     color: #9a9aa8;
   }
-  /* the burnout arc */
-  .arc {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    gap: 6px; width: 100%; padding: 0 30px;
+  /* the teetering tower, centered */
+  .tower {
+    position: absolute; left: 0; right: 0; bottom: 70px;
+    display: flex; flex-direction: column; align-items: center;
   }
-  .arc img { filter: drop-shadow(0 14px 22px rgba(0,0,0,.4)); }
-  .f0 { width: 230px; }
-  .f1 { width: 280px; }
-  .f2 { width: 340px; }
-  .arr { font-size: 60px; color: #f0b341; font-weight: 900; opacity: .85; margin-bottom: 20px; }
-  /* bars motif */
-  .bars { width: 620px; margin-bottom: 150px; display: flex; flex-direction: column; gap: 18px; }
-  .bar { display: flex; align-items: center; gap: 16px; }
-  .lbl { width: 132px; font-size: 26px; font-weight: 800; letter-spacing: 2px; }
-  .track { flex: 1; height: 24px; border-radius: 99px; background: rgba(255,255,255,.1); overflow: hidden; }
-  .fill { height: 100%; border-radius: 99px; }
-  .mind .lbl { color: #5ad1c7; }
-  .mind .fill { width: 22%; background: #5ad1c7; }
-  .money .lbl { color: #f0b341; }
-  .money .fill { width: 14%; background: #f0b341; }
+  .blk {
+    height: 70px; border-radius: 11px; display: flex; align-items: center; justify-content: center;
+    font-size: 34px; font-weight: 800; color: #20202a;
+    box-shadow: 0 7px 16px rgba(0,0,0,.4);
+    position: relative; margin-top: -2px;
+  }
+  .blk::after {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 38%;
+    background: rgba(255,255,255,.18); border-radius: 11px 11px 0 0;
+  }
+  .pedestal {
+    width: 320px; height: 54px; border-radius: 13px; margin-top: 6px;
+    background: #3a3a48; box-shadow: 0 8px 20px rgba(0,0,0,.5);
+    position: relative;
+  }
+  .pedestal::after {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 26%;
+    background: rgba(255,255,255,.08); border-radius: 13px 13px 0 0;
+  }
 </style>
 </head>
 <body>
@@ -53,18 +56,17 @@
     <div class="head">
       <div class="title">Hold It<br/>Together</div>
       <div class="en">a burnout survival sim</div>
-      <div class="tag">swipe to survive the daily grind</div>
+      <div class="tag">stack the stress &mdash; don't let it topple</div>
     </div>
-    <div class="arc">
-      <img class="f0" src="faces/face0.png" alt="" />
-      <span class="arr">›</span>
-      <img class="f1" src="faces/face5.png" alt="" />
-      <span class="arr">›</span>
-      <img class="f2" src="faces/face10.png" alt="" />
-    </div>
-    <div class="bars">
-      <div class="bar mind"><span class="lbl">SPIRIT</span><span class="track"><span class="fill"></span></span></div>
-      <div class="bar money"><span class="lbl">WALLET</span><span class="track"><span class="fill"></span></span></div>
+    <div class="tower">
+      <div class="blk" style="width:300px; background:#c9a7ff; transform:rotate(-7deg) translateX(34px);">Mom Calls</div>
+      <div class="blk" style="width:250px; background:#f0b341; transform:rotate(4deg) translateX(-20px);">Overtime</div>
+      <div class="blk" style="width:330px; background:#ffd24a; transform:rotate(-3deg) translateX(16px);">Married Yet?</div>
+      <div class="blk" style="width:280px; background:#ff7a7a; transform:rotate(3deg) translateX(-14px);">Deadline</div>
+      <div class="blk" style="width:300px; background:#8ad0ff; transform:rotate(-2deg) translateX(8px);">Credit Card</div>
+      <div class="blk" style="width:230px; background:#5ad1c7; transform:rotate(1deg);">Rent</div>
+      <div class="blk" style="width:310px; background:#9ccf8e;">Rat Race</div>
+      <div class="pedestal"></div>
     </div>
   </div>
 </body>
