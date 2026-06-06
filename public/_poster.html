@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1024px; height: 1024px; overflow: hidden; }
+  .p {
+    width: 1024px; height: 1024px; position: relative;
+    background: radial-gradient(120% 85% at 50% 0%, #232330 0%, #15151c 68%);
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    color: #fff; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  /* title block — kept in the TOP third (platform UI covers the bottom) */
+  .head { padding-top: 70px; text-align: center; }
+  .title {
+    font-size: 150px; font-weight: 900; letter-spacing: 6px; line-height: 1;
+    text-shadow: 0 6px 30px rgba(0,0,0,.5);
+  }
+  .en {
+    margin-top: 18px; font-size: 40px; font-weight: 800; letter-spacing: 10px;
+    color: #5ad1c7; text-transform: uppercase;
+  }
+  .tag {
+    margin-top: 16px; font-size: 30px; font-weight: 600; letter-spacing: 4px;
+    color: #9a9aa8;
+  }
+  /* the burnout arc */
+  .arc {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    gap: 6px; width: 100%; padding: 0 30px;
+  }
+  .arc img { filter: drop-shadow(0 14px 22px rgba(0,0,0,.4)); }
+  .f0 { width: 230px; }
+  .f1 { width: 280px; }
+  .f2 { width: 340px; }
+  .arr { font-size: 60px; color: #f0b341; font-weight: 900; opacity: .85; margin-bottom: 20px; }
+  /* bars motif */
+  .bars { width: 620px; margin-bottom: 150px; display: flex; flex-direction: column; gap: 18px; }
+  .bar { display: flex; align-items: center; gap: 16px; }
+  .lbl { width: 90px; font-size: 28px; font-weight: 800; letter-spacing: 2px; }
+  .track { flex: 1; height: 24px; border-radius: 99px; background: rgba(255,255,255,.1); overflow: hidden; }
+  .fill { height: 100%; border-radius: 99px; }
+  .mind .lbl { color: #5ad1c7; }
+  .mind .fill { width: 22%; background: #5ad1c7; }
+  .money .lbl { color: #f0b341; }
+  .money .fill { width: 14%; background: #f0b341; }
+</style>
+</head>
+<body>
+  <div class="p">
+    <div class="head">
+      <div class="title">撑住别崩</div>
+      <div class="en">Hold It Together</div>
+      <div class="tag">当代内耗生存模拟</div>
+    </div>
+    <div class="arc">
+      <img class="f0" src="faces/face0.png" alt="" />
+      <span class="arr">›</span>
+      <img class="f1" src="faces/face5.png" alt="" />
+      <span class="arr">›</span>
+      <img class="f2" src="faces/face10.png" alt="" />
+    </div>
+    <div class="bars">
+      <div class="bar mind"><span class="lbl">心力</span><span class="track"><span class="fill"></span></span></div>
+      <div class="bar money"><span class="lbl">钱包</span><span class="track"><span class="fill"></span></span></div>
+    </div>
+  </div>
+</body>
+</html>
