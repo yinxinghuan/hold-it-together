@@ -13,17 +13,17 @@
     display: flex; flex-direction: column; align-items: center;
   }
   /* title block — kept in the TOP third (platform UI covers the bottom) */
-  .head { padding-top: 70px; text-align: center; }
+  .head { padding-top: 58px; text-align: center; }
   .title {
-    font-size: 150px; font-weight: 900; letter-spacing: 6px; line-height: 1;
-    text-shadow: 0 6px 30px rgba(0,0,0,.5);
+    font-size: 118px; font-weight: 900; letter-spacing: 2px; line-height: .96;
+    text-transform: uppercase; text-shadow: 0 6px 30px rgba(0,0,0,.5);
   }
   .en {
-    margin-top: 18px; font-size: 40px; font-weight: 800; letter-spacing: 10px;
+    margin-top: 22px; font-size: 34px; font-weight: 800; letter-spacing: 6px;
     color: #5ad1c7; text-transform: uppercase;
   }
   .tag {
-    margin-top: 16px; font-size: 30px; font-weight: 600; letter-spacing: 4px;
+    margin-top: 14px; font-size: 25px; font-weight: 600; letter-spacing: 2px;
     color: #9a9aa8;
   }
   /* the burnout arc */
@@ -39,7 +39,7 @@
   /* bars motif */
   .bars { width: 620px; margin-bottom: 150px; display: flex; flex-direction: column; gap: 18px; }
   .bar { display: flex; align-items: center; gap: 16px; }
-  .lbl { width: 90px; font-size: 28px; font-weight: 800; letter-spacing: 2px; }
+  .lbl { width: 132px; font-size: 26px; font-weight: 800; letter-spacing: 2px; }
   .track { flex: 1; height: 24px; border-radius: 99px; background: rgba(255,255,255,.1); overflow: hidden; }
   .fill { height: 100%; border-radius: 99px; }
   .mind .lbl { color: #5ad1c7; }
@@ -51,9 +51,9 @@
 <body>
   <div class="p">
     <div class="head">
-      <div class="title">撑住别崩</div>
-      <div class="en">Hold It Together</div>
-      <div class="tag">当代内耗生存模拟</div>
+      <div class="title">Hold It<br/>Together</div>
+      <div class="en">a burnout survival sim</div>
+      <div class="tag">swipe to survive the daily grind</div>
     </div>
     <div class="arc">
       <img class="f0" src="faces/face0.png" alt="" />
@@ -63,8 +63,8 @@
       <img class="f2" src="faces/face10.png" alt="" />
     </div>
     <div class="bars">
-      <div class="bar mind"><span class="lbl">心力</span><span class="track"><span class="fill"></span></span></div>
-      <div class="bar money"><span class="lbl">钱包</span><span class="track"><span class="fill"></span></span></div>
+      <div class="bar mind"><span class="lbl">SPIRIT</span><span class="track"><span class="fill"></span></span></div>
+      <div class="bar money"><span class="lbl">WALLET</span><span class="track"><span class="fill"></span></span></div>
     </div>
   </div>
 </body>
