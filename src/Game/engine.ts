@@ -284,28 +284,28 @@ export class TowerGame {
     ctx.translate(x, y);
     ctx.rotate(angle);
     ctx.globalAlpha = ghost ? 0.55 : 1;
-    const h = BLOCK_H, r = 6;
-    // body
-    ctx.fillStyle = st.color;
-    if (!ghost) { ctx.shadowColor = '#00000044'; ctx.shadowBlur = 9; ctx.shadowOffsetY = 3; }
+    const h = BLOCK_H, r = 7;
+    // soft drop shadow under the block
+    if (!ghost) { ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 11; ctx.shadowOffsetY = 4; }
+    // smooth top-light → bottom-dark gradient gives a rounded volume
+    const grad = ctx.createLinearGradient(0, -h / 2, 0, h / 2);
+    grad.addColorStop(0, shade(st.color, 0.2));
+    grad.addColorStop(0.48, st.color);
+    grad.addColorStop(1, shade(st.color, -0.24));
+    ctx.fillStyle = grad;
     roundRect(ctx, -w / 2, -h / 2, w, h, r);
     ctx.fill();
     ctx.shadowColor = 'transparent';
-    // bottom shading for depth
-    ctx.fillStyle = '#0000002b';
-    roundRect(ctx, -w / 2, h / 2 - h * 0.34, w, h * 0.34, r);
-    ctx.fill();
-    // top highlight strip
-    ctx.fillStyle = '#ffffff32';
-    roundRect(ctx, -w / 2, -h / 2, w, h * 0.42, r);
-    ctx.fill();
-    // crisp top edge line
-    ctx.strokeStyle = '#ffffff3a';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(-w / 2 + r, -h / 2 + 0.5);
-    ctx.lineTo(w / 2 - r, -h / 2 + 0.5);
-    ctx.stroke();
+    // gentle top sheen that fades out (clipped, no hard strip)
+    ctx.save();
+    roundRect(ctx, -w / 2, -h / 2, w, h, r);
+    ctx.clip();
+    const sheen = ctx.createLinearGradient(0, -h / 2, 0, h * 0.08);
+    sheen.addColorStop(0, 'rgba(255,255,255,0.26)');
+    sheen.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = sheen;
+    ctx.fillRect(-w / 2, -h / 2, w, h);
+    ctx.restore();
     // label
     ctx.fillStyle = '#20202a';
     ctx.font = '800 15px -apple-system, "PingFang SC", system-ui, sans-serif';
@@ -346,22 +346,29 @@ export class TowerGame {
       ctx.stroke();
     }
 
-    // ground the base: a soft teal pool + a tight contact shadow
-    const gx = BASE_CX, gy = BASE_TOP_Y + BASE_H;
-    const pool = ctx.createRadialGradient(gx, gy, 6, gx, gy, 175);
-    pool.addColorStop(0, 'rgba(90,209,199,0.11)');
+    // ground the base: soft teal pool + tight contact shadow.
+    // scaled circular gradients (not ellipse-clipped) so they fade fully — no hard edge.
+    const gx = BASE_CX, gy = BASE_TOP_Y + BASE_H + 6;
+    ctx.save();
+    ctx.translate(gx, gy);
+    ctx.scale(1, 0.2);
+    const pool = ctx.createRadialGradient(0, 0, 0, 0, 0, 190);
+    pool.addColorStop(0, 'rgba(90,209,199,0.13)');
+    pool.addColorStop(0.55, 'rgba(90,209,199,0.05)');
     pool.addColorStop(1, 'rgba(90,209,199,0)');
     ctx.fillStyle = pool;
-    ctx.beginPath();
-    ctx.ellipse(gx, gy + 6, 168, 36, 0, 0, Math.PI * 2);
-    ctx.fill();
-    const sh = ctx.createRadialGradient(gx, gy, 2, gx, gy, 92);
+    ctx.fillRect(-190, -190, 380, 380);
+    ctx.restore();
+    ctx.save();
+    ctx.translate(gx, gy + 2);
+    ctx.scale(1, 0.22);
+    const sh = ctx.createRadialGradient(0, 0, 0, 0, 0, 108);
     sh.addColorStop(0, 'rgba(0,0,0,0.5)');
+    sh.addColorStop(0.65, 'rgba(0,0,0,0.16)');
     sh.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = sh;
-    ctx.beginPath();
-    ctx.ellipse(gx, gy + 9, 90, 18, 0, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillRect(-108, -108, 216, 216);
+    ctx.restore();
 
     // base pedestal
     ctx.fillStyle = '#3a3a48';
@@ -443,6 +450,15 @@ export class TowerGame {
     Matter.World.clear(this.world, false);
     Matter.Engine.clear(this.engine);
   }
+}
+
+function shade(hex: string, amt: number): string {
+  const c = hex.replace('#', '');
+  const n = c.length === 3 ? c.split('').map(x => x + x).join('') : c;
+  let r = parseInt(n.slice(0, 2), 16), g = parseInt(n.slice(2, 4), 16), b = parseInt(n.slice(4, 6), 16);
+  if (amt >= 0) { r += (255 - r) * amt; g += (255 - g) * amt; b += (255 - b) * amt; }
+  else { r *= 1 + amt; g *= 1 + amt; b *= 1 + amt; }
+  return `rgb(${r | 0},${g | 0},${b | 0})`;
 }
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
