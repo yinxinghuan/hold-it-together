@@ -75,6 +75,7 @@ export class TowerGame {
     this.world = this.engine.world;
     this.buildBase();
     this.resize();
+    this.nextHeld(); // show a sample block on the hook before the first tap
     this.loop = this.loop.bind(this);
     this.raf = requestAnimationFrame(this.loop);
   }
@@ -103,7 +104,7 @@ export class TowerGame {
   start() {
     if (this.started) return;
     this.started = true;
-    this.nextHeld();
+    if (!this.held) this.nextHeld();
   }
 
   // current swing amplitude/speed grow with the tower for difficulty.
@@ -283,17 +284,28 @@ export class TowerGame {
     ctx.translate(x, y);
     ctx.rotate(angle);
     ctx.globalAlpha = ghost ? 0.55 : 1;
-    const h = BLOCK_H, r = 5;
+    const h = BLOCK_H, r = 6;
     // body
     ctx.fillStyle = st.color;
-    if (!ghost) { ctx.shadowColor = '#00000033'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2; }
+    if (!ghost) { ctx.shadowColor = '#00000044'; ctx.shadowBlur = 9; ctx.shadowOffsetY = 3; }
     roundRect(ctx, -w / 2, -h / 2, w, h, r);
     ctx.fill();
     ctx.shadowColor = 'transparent';
-    // top highlight strip
-    ctx.fillStyle = '#ffffff2e';
-    roundRect(ctx, -w / 2, -h / 2, w, h * 0.4, r);
+    // bottom shading for depth
+    ctx.fillStyle = '#0000002b';
+    roundRect(ctx, -w / 2, h / 2 - h * 0.34, w, h * 0.34, r);
     ctx.fill();
+    // top highlight strip
+    ctx.fillStyle = '#ffffff32';
+    roundRect(ctx, -w / 2, -h / 2, w, h * 0.42, r);
+    ctx.fill();
+    // crisp top edge line
+    ctx.strokeStyle = '#ffffff3a';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-w / 2 + r, -h / 2 + 0.5);
+    ctx.lineTo(w / 2 - r, -h / 2 + 0.5);
+    ctx.stroke();
     // label
     ctx.fillStyle = '#20202a';
     ctx.font = '800 15px -apple-system, "PingFang SC", system-ui, sans-serif';
@@ -307,13 +319,51 @@ export class TowerGame {
   private draw() {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, WORLD_W, WORLD_H);
+    const danger = this.leanRatio();
+
+    // --- screen-space backdrop (no camera) ---
+    const sky = ctx.createLinearGradient(0, 0, 0, WORLD_H);
+    sky.addColorStop(0, '#191921');
+    sky.addColorStop(0.6, '#141418');
+    sky.addColorStop(1, '#0f0f14');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, WORLD_W, WORLD_H);
+
     ctx.save();
     if (this.shakeMag > 0) ctx.translate((Math.random() * 2 - 1) * this.shakeMag, (Math.random() * 2 - 1) * this.shakeMag);
     // world → screen: subtract camera
     ctx.translate(0, -this.camY);
 
+    // altitude guide lines — scroll past as the tower climbs (sense of ascent)
+    const topW = this.camY - 40, botW = this.camY + WORLD_H;
+    ctx.lineWidth = 1;
+    for (let y = BASE_TOP_Y - 120; y > topW; y -= 120) {
+      if (y > botW) continue;
+      ctx.strokeStyle = 'rgba(255,255,255,0.035)';
+      ctx.beginPath();
+      ctx.moveTo(34, y);
+      ctx.lineTo(WORLD_W - 34, y);
+      ctx.stroke();
+    }
+
+    // ground the base: a soft teal pool + a tight contact shadow
+    const gx = BASE_CX, gy = BASE_TOP_Y + BASE_H;
+    const pool = ctx.createRadialGradient(gx, gy, 6, gx, gy, 175);
+    pool.addColorStop(0, 'rgba(90,209,199,0.11)');
+    pool.addColorStop(1, 'rgba(90,209,199,0)');
+    ctx.fillStyle = pool;
+    ctx.beginPath();
+    ctx.ellipse(gx, gy + 6, 168, 36, 0, 0, Math.PI * 2);
+    ctx.fill();
+    const sh = ctx.createRadialGradient(gx, gy, 2, gx, gy, 92);
+    sh.addColorStop(0, 'rgba(0,0,0,0.5)');
+    sh.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = sh;
+    ctx.beginPath();
+    ctx.ellipse(gx, gy + 9, 90, 18, 0, 0, Math.PI * 2);
+    ctx.fill();
+
     // base pedestal
-    const danger = this.leanRatio();
     ctx.fillStyle = '#3a3a48';
     roundRect(ctx, BASE_CX - BASE_W / 2, BASE_TOP_Y, BASE_W, BASE_H, 6);
     ctx.fill();
@@ -344,7 +394,7 @@ export class TowerGame {
     ctx.globalAlpha = 1;
 
     // the held (swinging) block + its hook
-    if (this.started && !this.gameOver && this.held) {
+    if (!this.gameOver && this.held) {
       const x = this.heldX();
       const y = this.heldWorldY();
       // hook line up to the top of the visible area
@@ -367,6 +417,25 @@ export class TowerGame {
     }
 
     ctx.restore();
+
+    // --- screen-space overlays (no camera) ---
+    // vignette focuses the eye on the tower
+    const vg = ctx.createRadialGradient(WORLD_W / 2, WORLD_H * 0.44, WORLD_H * 0.28, WORLD_W / 2, WORLD_H * 0.5, WORLD_H * 0.78);
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.5)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, WORLD_W, WORLD_H);
+
+    // burnout warning: edges flush red as the tower leans
+    if (danger > 0.15 && !this.gameOver) {
+      const pulse = 0.6 + 0.4 * Math.sin(performance.now() / 110);
+      const a = Math.min(0.55, (danger - 0.15) * 0.8) * pulse;
+      const lg = ctx.createRadialGradient(WORLD_W / 2, WORLD_H / 2, WORLD_H * 0.34, WORLD_W / 2, WORLD_H / 2, WORLD_H * 0.64);
+      lg.addColorStop(0, 'rgba(255,93,108,0)');
+      lg.addColorStop(1, `rgba(255,93,108,${a})`);
+      ctx.fillStyle = lg;
+      ctx.fillRect(0, 0, WORLD_W, WORLD_H);
+    }
   }
 
   destroy() {
