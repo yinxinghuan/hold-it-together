@@ -24,3 +24,6 @@ candidates/
 __pycache__/
 public/tiers/_raw/
 public/faces/_raw/
+
+# dev test scripts (puppeteer screenshot harnesses)
+shot_*.cjs

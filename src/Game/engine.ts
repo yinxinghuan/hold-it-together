@@ -284,34 +284,65 @@ export class TowerGame {
     ctx.translate(x, y);
     ctx.rotate(angle);
     ctx.globalAlpha = ghost ? 0.55 : 1;
-    const h = BLOCK_H, r = 7;
-    // soft drop shadow under the block
-    if (!ghost) { ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 11; ctx.shadowOffsetY = 4; }
-    // smooth top-light → bottom-dark gradient gives a rounded volume
+    const h = BLOCK_H, r = h * 0.46;     // jelly: big radius makes it pillowy
+
+    // outer drop shadow + saturated color halo (the soft "glow" of a wet gum)
+    if (!ghost) { ctx.shadowColor = 'rgba(0,0,0,0.50)'; ctx.shadowBlur = 13; ctx.shadowOffsetY = 5; }
+    ctx.fillStyle = rgba(st.color, 0.55);
+    roundRect(ctx, -w / 2 - 2, -h / 2 - 2, w + 4, h + 4, r + 2);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+
+    // base — 4-stop gradient: bright top, color middle, slight cool dip, dark bottom
     const grad = ctx.createLinearGradient(0, -h / 2, 0, h / 2);
-    grad.addColorStop(0, shade(st.color, 0.2));
-    grad.addColorStop(0.48, st.color);
-    grad.addColorStop(1, shade(st.color, -0.24));
+    grad.addColorStop(0,    shade(st.color, 0.42));
+    grad.addColorStop(0.32, shade(st.color, 0.12));
+    grad.addColorStop(0.70, st.color);
+    grad.addColorStop(1,    shade(st.color, -0.28));
     ctx.fillStyle = grad;
     roundRect(ctx, -w / 2, -h / 2, w, h, r);
     ctx.fill();
-    ctx.shadowColor = 'transparent';
-    // gentle top sheen that fades out (clipped, no hard strip)
+
+    // inside the silhouette — frosted top sheen + concentrated specular + bottom meniscus
     ctx.save();
     roundRect(ctx, -w / 2, -h / 2, w, h, r);
     ctx.clip();
-    const sheen = ctx.createLinearGradient(0, -h / 2, 0, h * 0.08);
-    sheen.addColorStop(0, 'rgba(255,255,255,0.26)');
-    sheen.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = sheen;
+    // horizontal frosted top sheen
+    const top = ctx.createLinearGradient(0, -h / 2, 0, -h * 0.05);
+    top.addColorStop(0, 'rgba(255,255,255,0.55)');
+    top.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = top;
+    ctx.fillRect(-w / 2, -h / 2, w, h);
+    // small concentrated specular at top-left
+    const sp = ctx.createRadialGradient(-w * 0.24, -h * 0.30, 0, -w * 0.24, -h * 0.30, w * 0.18);
+    sp.addColorStop(0, 'rgba(255,255,255,0.85)');
+    sp.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = sp;
+    ctx.fillRect(-w / 2, -h / 2, w, h);
+    // bottom meniscus — bright thin line near the bottom inner edge
+    const me = ctx.createLinearGradient(0, h * 0.18, 0, h / 2);
+    me.addColorStop(0, 'rgba(255,255,255,0)');
+    me.addColorStop(0.85, 'rgba(255,255,255,0.18)');
+    me.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = me;
     ctx.fillRect(-w / 2, -h / 2, w, h);
     ctx.restore();
-    // label
-    ctx.fillStyle = '#20202a';
+
+    // bright inner rim — the "meniscus glow"
+    ctx.lineWidth = 1.4;
+    ctx.strokeStyle = 'rgba(255,255,255,0.50)';
+    roundRect(ctx, -w / 2 + 0.7, -h / 2 + 0.7, w - 1.4, h - 1.4, r - 0.7);
+    ctx.stroke();
+
+    // label — bevel pair: faint white below, dark ink above
     ctx.font = '800 15px -apple-system, "PingFang SC", system-ui, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.fillText(label, 0, 2);
+    ctx.fillStyle = '#1c1c26';
     ctx.fillText(label, 0, 1);
+
     ctx.restore();
     ctx.globalAlpha = 1;
   }
@@ -459,6 +490,13 @@ function shade(hex: string, amt: number): string {
   if (amt >= 0) { r += (255 - r) * amt; g += (255 - g) * amt; b += (255 - b) * amt; }
   else { r *= 1 + amt; g *= 1 + amt; b *= 1 + amt; }
   return `rgb(${r | 0},${g | 0},${b | 0})`;
+}
+
+function rgba(hex: string, a: number): string {
+  const c = hex.replace('#', '');
+  const n = c.length === 3 ? c.split('').map(x => x + x).join('') : c;
+  const r = parseInt(n.slice(0, 2), 16), g = parseInt(n.slice(2, 4), 16), b = parseInt(n.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${a})`;
 }
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
