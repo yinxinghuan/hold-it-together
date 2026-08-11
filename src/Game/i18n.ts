@@ -1,7 +1,7 @@
 type Locale = 'zh' | 'en';
 
 function detectLocale(): Locale {
-  const o = localStorage.getItem('game_locale');
+  const o = alteruLocalStorage.getItem('game_locale');
   if (o === 'en' || o === 'zh') return o;
   return navigator.language.toLowerCase().startsWith('zh') ? 'zh' : 'en';
 }

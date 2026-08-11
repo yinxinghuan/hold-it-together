@@ -12,7 +12,7 @@ export default function Game() {
   const gameRef = useRef<TowerGame | null>(null);
 
   const [score, setScore] = useState(0);
-  const [best, setBest] = useState(() => parseInt(localStorage.getItem(BEST_KEY) ?? '0', 10));
+  const [best, setBest] = useState(() => parseInt(alteruLocalStorage.getItem(BEST_KEY) ?? '0', 10));
   const [started, setStarted] = useState(false);
   const [over, setOver] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
@@ -41,7 +41,7 @@ export default function Game() {
   // persist best
   useEffect(() => {
     setBest(b => {
-      if (score > b) { localStorage.setItem(BEST_KEY, String(score)); return score; }
+      if (score > b) { alteruLocalStorage.setItem(BEST_KEY, String(score)); return score; }
       return b;
     });
   }, [score]);
